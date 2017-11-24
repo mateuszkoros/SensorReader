@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Sensor Reader</string>
+    <string name="invalidIpError">Address must be of proper IPv4 format</string>
+    <string name="invalidPortError">Please insert valid port</string>
+    <string name="invalidPeriodError">Value must be larger than 100ms</string>
+    <string name="lightSensorNotFoundError">Light sensor not found, quitting app!</string>
+    <string name="dataInBackgroundNotification">Sending data in background</string>
+    <string name="networkDataNotSpecified">Destination IP or sending period not specified</string>
+    <string name="serviceStartedNotification">Service started</string>
+    <string name="serviceStoppedNotification">Service stopped</string>
+</resources>
