@@ -17,6 +17,8 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.mklimek.sslutilsandroid.SslUtils;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -33,9 +35,23 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManagerFactory;
 
 public class SendingService extends Service implements SensorEventListener {
 
@@ -94,6 +110,11 @@ public class SendingService extends Service implements SensorEventListener {
     }
 
     private void setupConnection() {
+        Context context = this;
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, sslSession) -> {
+            Log.i("Certificate", "Approving certificate for: " + hostname);
+            return true;
+        });
         connectionHandler = new Handler();
         connectionRunnable = new Runnable() {
             @Override
@@ -101,13 +122,15 @@ public class SendingService extends Service implements SensorEventListener {
                 AsyncTask.execute(() -> {
                     try {
                         URL url = new URL(destinationIP);
-                        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                        HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+                        SSLContext sslContext = SslUtils.getSslContextForCertificateFile(context, "cert.pem");
+                        urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());
                         urlConnection.setDoOutput(true);
                         urlConnection.setDoInput(true);
                         urlConnection.setRequestProperty("Content-type", "text/plain");
                         writeToStream(urlConnection.getOutputStream());
                         urlConnection.connect();
-                        if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        if (urlConnection.getResponseCode() == HttpsURLConnection.HTTP_OK) {
                             readResponse(urlConnection.getInputStream());
                         } else {
                             Log.e("Error", "Failed to connect to server");

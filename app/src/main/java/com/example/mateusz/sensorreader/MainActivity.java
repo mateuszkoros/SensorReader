@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         String ip = destinationIpDisplay.getText().toString();
 
         if (Patterns.IP_ADDRESS.matcher(ip).matches()) {
-            return "http://".concat(ip);
+            return "https://".concat(ip);
         } else {
             throw new DataFormatException();
         }
