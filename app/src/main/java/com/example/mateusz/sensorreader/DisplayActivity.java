@@ -7,11 +7,15 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 public class DisplayActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -20,6 +24,8 @@ public class DisplayActivity extends AppCompatActivity implements SensorEventLis
     private Sensor lightSensor;
     float lightValue = (float)-1.0;
     private boolean isServiceRunning = false;
+    LineGraphSeries<DataPoint> series;
+    int graphX = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,7 @@ public class DisplayActivity extends AppCompatActivity implements SensorEventLis
             showAlertDialog(getString(R.string.lightSensorNotFoundError));
             finish();
         }
+        setupGraph();
         startBackGroundService();
     }
 
@@ -117,6 +124,35 @@ public class DisplayActivity extends AppCompatActivity implements SensorEventLis
         builder.setPositiveButton("OK", null);
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void setupGraph() {
+        GraphView g = findViewById(R.id.graph);
+        series = new LineGraphSeries<>(new DataPoint[] {});
+        g.addSeries(series);
+        g.getViewport().setXAxisBoundsManual(true);
+        g.getViewport().setScrollable(true);
+        g.getViewport().setScalable(true);
+        g.getViewport().setMinX(0.0);
+        g.getViewport().setMaxX(10.0);
+        g.getViewport().setMinY(0.0);
+        Bundle bundle = getIntent().getExtras();
+        final int refreshPeriod;
+        if (bundle != null) {
+            refreshPeriod = (int)bundle.get("period");
+        } else {
+            refreshPeriod = SensorManager.SENSOR_DELAY_NORMAL;
+        }
+        Handler graphHandler = new Handler();
+        Runnable graphRunnable = new Runnable() {
+            @Override
+            public void run() {
+                    series.appendData(new DataPoint(graphX, lightValue), true, 1000);
+                    graphX++;
+                    graphHandler.postDelayed(this, refreshPeriod);
+            }
+        };
+        graphHandler.post(graphRunnable);
     }
 
 }
