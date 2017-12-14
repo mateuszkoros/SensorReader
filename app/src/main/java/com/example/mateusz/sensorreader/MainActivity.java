@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
-
 import java.util.zip.DataFormatException;
 
 public class MainActivity extends AppCompatActivity {

@@ -8,4 +8,13 @@
     <string name="networkDataNotSpecified">Destination IP or sending period not specified</string>
     <string name="serviceStartedNotification">Service started</string>
     <string name="serviceStoppedNotification">Service stopped</string>
+    <string name="stopSendingButtonText">Stop sending</string>
+    <string name="currentValueText">Current value</string>
+    <string name="sendingPeriodText">Sending period in miliseconds</string>
+    <string name="startSendingButtonText">Start sending data</string>
+    <string name="ipDefaultValue">Ip</string>
+    <string name="destinationIpText">Destination IP</string>
+    <string name="sendingPeriodDefaultValue">1000</string>
+    <string name="destinationPortText">Destination port</string>
+    <string name="destinationPortDefaultValue">5000</string>
 </resources>
