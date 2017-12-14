@@ -35,7 +35,6 @@ public class SendingService extends Service implements SensorEventListener {
     private String destinationIP;
     private int sendingPeriod = 100;
     private SensorManager sensorManager;
-    private Sensor lightSensor;
     float lightValue = (float)-1.0;
     private Handler connectionHandler;
     private Runnable connectionRunnable;
@@ -50,7 +49,7 @@ public class SendingService extends Service implements SensorEventListener {
             sendingPeriod = (int)bundle.get("period");
         }
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        Sensor lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         if (lightSensor == null) {
             showAlert(getString(R.string.lightSensorNotFoundError));
             stopSelf();
