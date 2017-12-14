@@ -111,19 +111,29 @@ public class SendingService extends Service implements SensorEventListener {
 
     private void setupConnection() {
         Context context = this;
+        URL tmpUrl = null; // temporary variable to avoid assigning final value in try block
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, sslSession) -> {
             Log.i("Certificate", "Approving certificate for: " + hostname);
             return true;
         });
+        try {
+            tmpUrl = new URL(destinationIP);
+        } catch(MalformedURLException e) {
+            Log.e("Error", "Exception stacktrace:", e);
+            showAlert("Wrong ip specified: ".concat(destinationIP));
+            stopSelf();
+        }
+        final URL url = tmpUrl;
+        // read certificate from assets directory
+        final SSLContext sslContext = SslUtils
+                .getSslContextForCertificateFile(context, "cert.pem");
         connectionHandler = new Handler();
         connectionRunnable = new Runnable() {
             @Override
             public void run() {
                 AsyncTask.execute(() -> {
                     try {
-                        URL url = new URL(destinationIP);
                         HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-                        SSLContext sslContext = SslUtils.getSslContextForCertificateFile(context, "cert.pem");
                         urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());
                         urlConnection.setDoOutput(true);
                         urlConnection.setDoInput(true);
